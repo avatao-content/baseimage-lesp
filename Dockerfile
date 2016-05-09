@@ -26,7 +26,7 @@ RUN chmod 664 /var/www/*.* \
 	&& chown -R www-data:www-data /db \
 	&& chown www-data /var/cache/nginx
 
-VOLUME ["/var/log", "/var/run/php-fpm", "/var/lib/php5", "/var/cache/nginx", "/etc/nginx", "/run", "/tmp", "/db"]
+VOLUME ["/var/log", "/var/run/php-fpm", "/var/lib/php5", "/var/cache/nginx", "/etc/nginx", "/run", "/tmp"]
 
 EXPOSE 8888
 USER www-data
