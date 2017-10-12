@@ -1,34 +1,24 @@
-FROM avatao/ubuntu:14.04
+FROM avatao/ubuntu:16.04
 
-ENV NGINX_VERSION 1.8.1-1~trusty
-
-RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC641079A6ABABF5BD827BD9BF62 \
-	&& echo "deb http://nginx.org/packages/ubuntu/ trusty nginx" >> /etc/apt/sources.list \
-	&& apt-get update \
-	&& apt-get install -y \
-		ca-certificates \
-		nginx=${NGINX_VERSION} \ 
-		gettext-base \
-		php5-fpm \
-		php5-sqlite \
-		php5-mcrypt \
+RUN apt-get update \
+	&& apt-get -qy install \
+		nginx \
+		php7.0 \
+		php7.0-fpm \	
+		php7.0-mcrypt \
+		php7.0-sqlite3 \
 		supervisor \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& php5enmod mcrypt \
-	&& ln -sf /dev/stderr /var/log/nginx/access.log \
-	&& ln -sf /dev/stderr /var/log/nginx/error.log \
-	&& ln -sf /dev/stderr /var/log/php5-fpm.log
+	&& rm -fr /var/www/html
 
 COPY ./ /
 
-RUN chmod 664 /var/www/*.* \
-	&& mkdir /db \
-	&& chown -R www-data:www-data /db \
-	&& chown www-data /var/cache/nginx
+RUN mkdir /var/cache/nginx /var/run/php-fpm \
+	&& chown -R www-data:www-data /var/lib/nginx /var/cache/nginx /var/run/php-fpm /var/log \
+	&& rm /etc/php/7.0/fpm/pool.d/www.conf
 
-VOLUME ["/var/log", "/var/run/php-fpm", "/var/lib/php5", "/var/cache/nginx", "/etc/nginx", "/run", "/tmp"]
+VOLUME ["/var/cache/nginx", "/var/run/php-fpm", "/var/log", "/var/lib/nginx"]
 
-EXPOSE 8888
 USER www-data
-CMD ["supervisord", "-c", "/etc/supervisor/supervisord.conf"]
 
+CMD ["supervisord", "-c", "/etc/supervisor/conf.d/php-fpm.conf"]
